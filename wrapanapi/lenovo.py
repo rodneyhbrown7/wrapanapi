@@ -58,11 +58,19 @@ class LenovoSystem(WrapanapiAPIBase):
 
     def list_servers(self):
         response = self.__service_instance("/cabinet?status=includestandalone")
-        # TODO this only parses the first list of nodes in the cabinet. Need to abstract this method
-        # cabinets = response['cabinetList']
-        # map(lambda x: x['nodeList'], cabinets)
-        cabinets = response['cabinetList'][0]
-        nodelist = cabinets['nodeList']
-        inventorylist = map(lambda x: x['itemInventory'], nodelist)
-        inventorylist = filter(lambda x: x['type'] != 'SCU', inventorylist)
+        inventorylist = []
+        for cabinet in response['cabinetList']:
+            nodelist = cabinet['nodeList']
+            inventorylist.extend(map(lambda x: x['itemInventory'], nodelist))
+            inventorylist = filter(lambda x: x['type'] != 'SCU', inventorylist)
         return inventorylist
+
+    def list_server_uuids(self):
+        serverlist = self.list_servers()
+        uuidlist = map(lambda x: x['uuid'], serverlist)
+        return uuidlist
+
+    def get_server(self, uuid=""):
+        path = "/nodes/" + uuid
+        response = self.__service_instance(path)
+        return response
