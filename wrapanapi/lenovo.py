@@ -65,3 +65,10 @@ class LenovoSystem(WrapanapiAPIBase):
         inventorylist = map( lambda x : x['itemInventory'], nodelist)
         inventorylist = filter( lambda x : x['type'] != 'SCU', inventorylist)
         return inventorylist
+
+    def  opensession(self):
+        uri = urlunparse((self.protocol, self.hostname, "/sessions", "" , "", ""))
+        response = requests.post(uri, data = { 'UserId': self.username, 'password':self.password}, 
+                                      headers = {'Content-Type': 'application/json'}, verify = False)
+        print uri
+        return response
